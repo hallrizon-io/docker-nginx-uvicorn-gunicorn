@@ -1,0 +1,45 @@
+# https://testdriven.io/blog/dockerizing-django-with-postgres-gunicorn-and-nginx/
+version: '3.7'
+
+services:
+  web:
+    build:
+      context: ./app1
+      dockerfile: Dockerfile
+    environment:
+      - PORT=8001
+    ports:
+      - 8001:8001
+
+    env_file:
+      - .env
+
+  web2:
+    build:
+      context: ./app2
+      dockerfile: Dockerfile
+    environment:
+      - PORT=8002
+    ports:
+      - 8002:8002
+
+    env_file:
+      - .env
+
+  nginx:
+    build: ./nginx
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - web
+      - web2
+# sudo docker-compose -f docker-compose.prod.yml up --build
+# sudo docker-compose -f docker-compose.prod.yml exec web python manage.py migrate --noinput
+# sudo docker-compose -f docker-compose.prod.yml exec web python manage.py collectstatic --no-input --clear
+
+
+# ALL REBUILD
+# sudo docker-compose down -v
+# sudo docker-compose -f docker-compose.prod.yml up  --build
+# sudo docker-compose -f docker-compose.prod.yml exec web python manage.py migrate --noinput
